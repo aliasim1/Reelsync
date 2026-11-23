@@ -1,0 +1,6 @@
+{
+  "name": "ReelSync",
+  "description": "Multi-platform short-form video composer, scheduler, and publishing studio for TikTok, Instagram Reels, YouTube Shorts, and Snapchat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

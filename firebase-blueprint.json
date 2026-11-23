@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "WorkspacePublicSettings": {
+      "title": "WorkspacePublicSettings",
+      "description": "Public workspace configuration managed exclusively by the verified owner admin and read by visitors using the shared app.",
+      "type": "object",
+      "properties": {
+        "platforms": {
+          "type": "object",
+          "description": "Public platform channel definitions (tiktok, instagram, youtube, snapchat) without private credentials."
+        },
+        "mediaChannels": {
+          "type": "array",
+          "description": "Bounded list of configured social media channel entries (max 25)."
+        },
+        "whatsAppConfig": {
+          "type": "object",
+          "description": "Public WhatsApp support widget settings."
+        },
+        "gmailConfig": {
+          "type": "object",
+          "description": "Public Gmail support widget settings."
+        },
+        "updatedBy": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the admin who last updated settings."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the latest update."
+        }
+      },
+      "required": ["platforms", "mediaChannels", "whatsAppConfig", "gmailConfig", "updatedBy", "updatedAt"]
+    },
+    "WorkspacePrivateCredentials": {
+      "title": "WorkspacePrivateCredentials",
+      "description": "Admin-only OAuth client IDs and webhook endpoints isolated from public visitors.",
+      "type": "object",
+      "properties": {
+        "tiktokClientId": { "type": "string", "maxLength": 200 },
+        "tiktokWebhook": { "type": "string", "maxLength": 400 },
+        "instagramClientId": { "type": "string", "maxLength": 200 },
+        "instagramWebhook": { "type": "string", "maxLength": 400 },
+        "youtubeClientId": { "type": "string", "maxLength": 200 },
+        "youtubeWebhook": { "type": "string", "maxLength": 400 },
+        "snapchatClientId": { "type": "string", "maxLength": 200 },
+        "snapchatWebhook": { "type": "string", "maxLength": 400 },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["updatedBy", "updatedAt"]
+    },
+    "TeamMemberRecord": {
+      "title": "TeamMemberRecord",
+      "description": "Workspace team member profile and role assignment, accessible strictly by the verified owner admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "email": { "type": "string", "minLength": 3, "maxLength": 180 },
+        "role": { "type": "string", "enum": ["admin", "creator", "editor", "viewer"] },
+        "status": { "type": "string", "enum": ["active", "invited"] },
+        "lastActiveAt": { "type": "string", "maxLength": 64 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email", "role", "status", "lastActiveAt", "updatedAt"]
+    },
+    "AdminRegistryEntry": {
+      "title": "AdminRegistryEntry",
+      "description": "Server-managed admin registry marker document.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 180 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "UserAccountProfile": {
+      "title": "UserAccountProfile",
+      "description": "User workspace account storing display preferences and chosen language. Role is strictly locked to creator; admin access is exclusively derived from verified owner email.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "email": { "type": "string", "minLength": 3, "maxLength": 180 },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "language": { "type": "string", "enum": ["en", "ur", "roman-ur", "ar", "es", "fr"] },
+        "role": { "type": "string", "enum": ["creator"] },
+        "onboardingComplete": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email", "language", "role", "onboardingComplete", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/workspace_config/{docId}": {
+      "schema": { "$ref": "#/entities/WorkspacePublicSettings" },
+      "description": "Public workspace configuration readable by authenticated users and writable only by the verified owner admin."
+    },
+    "/workspace_private/{docId}": {
+      "schema": { "$ref": "#/entities/WorkspacePrivateCredentials" },
+      "description": "Private OAuth client IDs and webhook endpoints accessible exclusively by the verified owner admin."
+    },
+    "/team_members/{memberId}": {
+      "schema": { "$ref": "#/entities/TeamMemberRecord" },
+      "description": "Team member directory containing emails and roles; strictly isolated to the verified owner admin."
+    },
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserAccountProfile" },
+      "description": "Authenticated user profile storing chosen language and account setup status."
+    },
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminRegistryEntry" },
+      "description": "Admin role registry checked by security rules."
+    }
+  }
+}
